@@ -39,6 +39,36 @@ export interface User {
   email: string;
 }
 
+export interface Rating {
+  recipeId: string;
+  rating: number;
+}
+
+export interface UserRatings {
+  user: number;
+  ratings: Rating[];
+}
+
+export interface Favourite {
+  recipeId: string;
+  createdAt: date;
+}
+
+export interface UserFavourites {
+  user: number;
+  favourites: Favourite[];
+}
+
+export interface PlanningRecipe {
+  recipeId: string;
+  date: date;
+}
+
+export interface UserPlanning {
+  user: number;
+  favourites: Favourite[];
+}
+
 export interface Ingredient {
   title: string;
   measurement: ['', 'kg', 'g', 'l', 'cl', 'ml', 'c.c.', 'c.s.', 'sachet'];
