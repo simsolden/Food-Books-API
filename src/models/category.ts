@@ -22,7 +22,6 @@ const category = new Schema({
     required: [true, 'Missing category picture'],
     maxLength: [255, 'category title must be lower than 255 characters'],
   },
-  created_at: { type: Date, default: Date.now },
 });
 
 export const Category = mongoose.model('Category', category);
