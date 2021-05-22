@@ -1,6 +1,6 @@
 import { User } from '../models/user';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { Recipe } from '../models/recipe';
 
 export const createUser = async (req: any, res: any, next: any) => {
   const user = new User({
@@ -16,9 +16,13 @@ export const createUser = async (req: any, res: any, next: any) => {
   req.body.pictureUri && user.set('picturiUri', req.body.picturiUri);
 
   try {
-    await User.create(user);
-
-    res.status(200).json({ user });
+    const userResponse = await User.create(user);
+    // @ts-ignore
+    userResponse._doc.password = '';
+    // @ts-ignore
+    const token = await user.generateAuthToken();
+    // @ts-ignore
+    res.status(200).json({ user: { ...userResponse._doc }, token });
   } catch (err) {
     res.status(500).json({ error: true, message: err.message });
   }
@@ -29,13 +33,13 @@ export const login = async (req: any, res: any, next: any) => {
   try {
     // @ts-ignore
     const user = await User.findByCredentials(email, password);
-    // @ts-ignore
-    await user.generateAuthToken();
     user.password = '';
+    // @ts-ignore
+    const token = await user.generateAuthToken();
 
-    return res.json({ auth: true, user });
+    return res.json({ user, token });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(err.statusCode || 500).json({ message: err.message });
   }
 };
 
@@ -47,6 +51,58 @@ export const findUsers = async (req: any, res: any, next: any) => {
       result = await User.find(req.query);
     } else {
       result = await User.find();
+    }
+
+    res.status(200).json({ result });
+  } catch (err) {
+    res.status(500).json({ error: true, message: err.message });
+  }
+};
+
+export const findUserRecipe = async (req: any, res: any, next: any) => {
+  try {
+    let result;
+
+    if (req.query.title) {
+      const search = req.query.title;
+      const regex = new RegExp(`.*${search}.*`, 'i');
+      delete req.query.title;
+
+      if (req.query.categories) {
+        const categories = req.query.categories;
+        delete req.query.categories;
+
+        result = await Recipe.find(req.query)
+          .where('owner')
+          .equals(req.user._id)
+          .where('title')
+          .regex(regex)
+          .where('categories')
+          .in(categories)
+          .sort('-_id');
+      } else {
+        result = await Recipe.find(req.query)
+          .where('owner')
+          .equals(req.user._id)
+          .where('title')
+          .regex(regex)
+          .sort('-_id');
+      }
+      //To be able to use the rest of the query as a document finder, remove title
+    } else {
+      if (req.query.categories) {
+        const categories = req.query.categories;
+        delete req.query.categories;
+
+        result = await Recipe.find(req.query)
+          .where('owner')
+          .equals(req.user._id)
+          .where('categories')
+          .in(categories)
+          .sort('-_id');
+      } else {
+        result = await Recipe.find(req.query).where('owner').equals(req.user._id).sort('-_id');
+      }
     }
 
     res.status(200).json({ result });
