@@ -70,8 +70,8 @@ export interface UserPlanning {
 }
 
 export interface Ingredient {
-  title: string;
-  measurement: ['', 'kg', 'g', 'l', 'cl', 'ml', 'c.c.', 'c.s.', 'sachet'];
+  name: string;
+  measurement: Measurement;
   quantity: number;
 }
 

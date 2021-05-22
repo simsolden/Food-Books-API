@@ -2,20 +2,36 @@ import express from 'express';
 import compression from 'compression';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import fs from 'fs';
-import { Category } from './models/category';
+import { errorHandler } from './middlewares/error';
+import { notFoundHandler } from './middlewares/not-found';
 import categoriesRouter from './routes/categories';
+import ratingsRouter from './routes/ratings';
 import recipesRouter from './routes/recipes';
-
-const upload = multer({ dest: __dirname + '/public/images', limits: { fileSize: 3000000 } });
+import usersRouter from './routes/users';
+import favouritesRouter from './routes/favourites';
+import planningRouter from './routes/planning';
+import { setHeaders } from './middlewares/corsHeaders';
+import { Recipe } from './models/recipe';
+import { auth } from './middlewares/authentication';
+import { uploadPicture } from './controllers/recipes';
 
 const app = express();
 
+export const upload = multer({ dest: __dirname + '/assets', limits: { fileSize: 3000000 } });
+
 app.use(compression());
 app.use(express.json());
-app.use('/images', express.static(__dirname + '../public/images'));
+app.use('/images', express.static(__dirname + '/assets'));
+app.use(setHeaders);
 app.use(categoriesRouter);
+app.use(ratingsRouter);
+app.use(favouritesRouter);
+app.use(planningRouter);
 app.use(recipesRouter);
+recipesRouter.post('/recipes/upload', upload.single('image'), auth, uploadPicture);
+app.use(usersRouter);
+app.use(errorHandler);
+app.use(notFoundHandler);
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
@@ -27,27 +43,13 @@ mongoose.connect(process.env.DB_URL || 'mongodb://localhost/food-books', {
 
 const db = mongoose.connection;
 
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', async function () {
-  try {
-    const delet = await Category.deleteMany();
-    console.log(delet);
-  } catch (err) {
-    console.error(err);
-  }
-});
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', async function () {
+//   try {
+//     await Recipe.deleteMany();
+//   } catch (err) {
+//     console.error(err);
+//   }
+// });
 
-app.listen(3030);
-
-app.post('/upload', upload.single('photo'), (req, res) => {
-  if (req.file) {
-    const extension = req.file.originalname.split('.')[1];
-    const newFileName = `${req.file.destination}/${req.file.filename}.${extension}`;
-
-    fs.rename(req.file.path, newFileName, (err) => {
-      if (err) console.error(err);
-    });
-
-    res.json(`http://localhost:3030/images/${req.file.filename}.${extension}`);
-  }
-});
+app.listen(3030, () => console.log('listening to 3030'));
