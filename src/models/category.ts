@@ -13,8 +13,12 @@ const category = new Schema({
   description: {
     type: String,
     required: [true, 'Missing category description'],
-    minLength: [10, 'category description must be between 10 and 510 characters'],
-    maxLength: [510, 'category description must be between 10 and 510 characters'],
+    minLength: [10, 'category description must be between 10 and 1024 characters'],
+    maxLength: [1024, 'category description must be between 10 and 1024 characters'],
+  },
+  descriptionSource: {
+    type: String,
+    maxLength: [1024, 'category description must be less than 1024 characters'],
   },
   pictureUri: {
     type: String,

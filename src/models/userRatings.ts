@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import { Rating } from '..';
+import HttpException from '../common/HttpException';
+import { Recipe } from './recipe';
 
 const { Schema } = mongoose;
 

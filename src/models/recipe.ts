@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import { Ingredient } from '..';
+import HttpException from '../common/HttpException';
+import { Category } from './category';
+import { User } from './user';
 
 const { Schema } = mongoose;
 
@@ -88,13 +91,12 @@ const recipe = new Schema(
           },
           measurement: {
             type: String,
-            enum: ['', 'kg', 'g', 'l', 'cl', 'ml', 'c.c.', 'c.s.', 'sachet'],
+            enum: ['other', 'kg', 'g', 'l', 'cl', 'ml', 'c.c.', 'c.s.', 'sachet'],
             default: '',
           },
           name: {
             type: String,
-            minLength: [2, 'ingredient name must be between 2 and 25 characters'],
-            maxLength: [25, 'ingredient name must be between 2 and 25 characters'],
+            maxLength: [50, 'ingredient name must be between 2 and 50 characters'],
             required: [true, 'missing ingredient name'],
           },
         },
@@ -108,8 +110,7 @@ const recipe = new Schema(
       type: [
         {
           type: String,
-          minLenght: [5, 'recipe step must be between 5 and 255 characters'],
-          maxLength: [255, 'recipe step must be between 5 and 255 characters'],
+          maxLength: [510, 'recipe step must be between 5 and 255 characters'],
         },
       ],
       required: [true, 'missing recipe steps'],
@@ -118,12 +119,43 @@ const recipe = new Schema(
         'There must be between 1 and 30 preparation steps',
       ],
     },
+    speed: {
+      type: String,
+      enum: ['fast', 'medium', 'slow'],
+      default: 'fast',
+    },
     isPrivate: {
+      type: Boolean,
+      default: false,
+    },
+    isDraft: {
       type: Boolean,
       default: false,
     },
   },
   { timestamps: true }
 );
+
+recipe.statics.validateUserAndCategories = async (ownerId, categories) => {
+  const owner: any = await User.findOne({ _id: ownerId });
+
+  if (!owner) {
+    throw new HttpException(401, 'User not found.');
+  }
+
+  for (const categoryId of categories) {
+    if (!(await Category.findOne({ _id: categoryId }))) {
+      throw new HttpException(404, 'Category not found.');
+    }
+  }
+};
+
+recipe.statics.validateRecipeId = async (recipeId) => {
+  const recipe: any = await Recipe.findOne({ _id: recipeId });
+
+  if (!recipe) {
+    throw new HttpException(404, 'Recipe not found.');
+  }
+};
 
 export const Recipe = mongoose.model('Recipe', recipe);

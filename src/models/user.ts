@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import HttpException from '../common/http-exception';
+import HttpException from '../common/HttpException';
 
 const { Schema } = mongoose;
 
@@ -14,7 +14,7 @@ const user = new Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'admin', 'super-admin'],
     default: 'user',
   },
   firstname: {
@@ -63,16 +63,13 @@ user.pre('save', async function (next) {
 user.methods.generateAuthToken = async function () {
   const user: any = this;
 
-  user.token = jwt.sign({ userId: user._id.toString() }, process.env.ACCESS_TOKEN_SECRET!);
+  const token = jwt.sign({ userId: user._id.toString() }, process.env.ACCESS_TOKEN_SECRET!);
 
-  await user.save();
-
-  return user.token;
+  return token;
 };
 
 user.statics.findByCredentials = async (email, password) => {
   const user: any = await User.findOne({ email });
-
   if (!user) {
     throw new HttpException(401, 'Unable to login.');
   }
