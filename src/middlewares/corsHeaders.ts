@@ -1,6 +1,6 @@
 // Add headers
 export const setHeaders = (req: any, res: any, next: any) => {
-  const acceptedOrigins = [process.env.WEBSITE_URL, process.env.MY_OTHER_IP_ADDRESS, process.env.MY_LOCAL_IP_ADRESS];
+  const acceptedOrigins = [process.env.WEBSITE_URL, process.env.MY_OTHER_IP_ADDRESS, process.env.MY_LOCAL_IP_ADDRESS];
 
   // Website you wish to allow to connect
   acceptedOrigins.includes(req.headers.origin) && res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
