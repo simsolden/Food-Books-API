@@ -11,10 +11,10 @@ import usersRouter from './routes/users';
 import favouritesRouter from './routes/favourites';
 import planningRouter from './routes/planning';
 import { setHeaders } from './middlewares/corsHeaders';
-import { Recipe } from './models/recipe';
 import { auth } from './middlewares/authentication';
-import { uploadPicture } from './controllers/recipes';
+import { uploadPicture, updatePicture } from './controllers/recipes';
 import helmet from 'helmet';
+import { verifyPicture } from './middlewares/recipes/verifyPicture';
 
 const app = express();
 
@@ -30,7 +30,8 @@ app.use(ratingsRouter);
 app.use(favouritesRouter);
 app.use(planningRouter);
 app.use(recipesRouter);
-recipesRouter.post('/recipes/upload', upload.single('image'), auth, uploadPicture);
+recipesRouter.post('/recipes/update-picture', auth, upload.single('image'), verifyPicture, updatePicture);
+recipesRouter.post('/recipes/upload', auth, upload.single('image'), uploadPicture);
 app.use(usersRouter);
 app.use(errorHandler);
 app.use(notFoundHandler);
@@ -48,7 +49,7 @@ const db = mongoose.connection;
 // db.on('error', console.error.bind(console, 'connection error:'));
 // db.once('open', async function () {
 //   try {
-//     await Recipe.updateMany({ categories: ['60a3c90015682d9669658992'] }, { categories: ['60a3c197ecf7a1faa480330c'] });
+//     await Recipe.updateMany({ cookingTime: { $exists: false } }, { cookingTime: 0 });
 //   } catch (err) {
 //     console.error(err);
 //   }
