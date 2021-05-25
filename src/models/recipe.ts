@@ -29,7 +29,8 @@ const recipe = new Schema(
     },
     cookingTime: {
       type: Number,
-      min: [1, 'recipe cookin time must be between strictly positive '],
+      min: [0, 'recipe cookin time must be positive '],
+      default: 0,
     },
     difficulty: {
       type: String,
@@ -38,7 +39,7 @@ const recipe = new Schema(
     },
     cost: {
       type: String,
-      enum: ['low', 'medium', 'high'],
+      enum: ['low', 'medium', 'pricy'],
       default: 'low',
     },
     servings: {
@@ -57,7 +58,7 @@ const recipe = new Schema(
       type: String,
       required: [true, 'Missing recipe description'],
       minLength: [5, 'recipe description must be between 5 and 255 characters'],
-      maxLength: [255, 'recipe description must be between 5 and 255 characters'],
+      maxLength: [510, 'recipe description must be between 5 and 255 characters'],
     },
     pictures: {
       type: [String],
@@ -141,6 +142,8 @@ const recipe = new Schema(
 
 recipe.pre('save', async function (next) {
   const recipe: any = this;
+
+  recipe.title = recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1);
 
   const user = await User.findOne({ _id: recipe.owner });
   // @ts-ignore

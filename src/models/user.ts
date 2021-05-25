@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import HttpException from '../common/HttpException';
 import { UserPlanning } from './userPlanning';
+import { Recipe } from './recipe';
 
 const { Schema } = mongoose;
 
@@ -53,7 +54,7 @@ const user = new Schema({
   },
 });
 
-user.pre('save', async function (next) {
+user.pre('save', async (next) => {
   const user: any = this;
 
   if (user.isModified('password')) {
@@ -64,7 +65,7 @@ user.pre('save', async function (next) {
   next();
 });
 
-user.methods.generateAuthToken = async function () {
+user.methods.generateAuthToken = async () => {
   const user: any = this;
 
   const token = jwt.sign({ userId: user._id.toString() }, process.env.ACCESS_TOKEN_SECRET!);
