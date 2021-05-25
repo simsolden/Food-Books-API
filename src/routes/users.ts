@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { createUser, findUsers, findOneUser, updateUser, login, findUserRecipe } from '../controllers/users';
+import { createUser, findUsers, findOneUser, updateUser, login, findUserRecipes } from '../controllers/users';
 import { auth } from '../middlewares/authentication';
+import { pagination } from '../middlewares/users/pagination';
 
 const usersRouter = Router();
 
@@ -10,7 +11,7 @@ usersRouter.post('/login', login);
 
 usersRouter.get('/users', findUsers);
 
-usersRouter.get('/users/recipes', auth, findUserRecipe);
+usersRouter.get('/users/recipes', auth, pagination, findUserRecipes);
 
 usersRouter.get('/users/:userId', findOneUser);
 

@@ -1,4 +1,6 @@
 import fs from 'fs';
+import { ObjectId } from 'mongodb';
+import HttpException from '../common/HttpException';
 import { Ingredient } from '../index.d';
 import { Recipe } from '../models/recipe';
 
@@ -14,7 +16,7 @@ export const createRecipe = async (req: any, res: any) => {
     ingredients: req.body.ingredients,
   });
 
-  +req.body.prepTime > 60 ? recipe.set('speed', 'slow') : req.body.cookingTime > 20 && recipe.set('speed', 'medium');
+  +req.body.prepTime > 60 ? recipe.set('speed', 'slow') : +req.body.cookingTime > 20 && recipe.set('speed', 'medium');
 
   req.body.cookingTime && recipe.set('cookingTime', req.body.cookingTime);
   req.body.difficulty && recipe.set('difficulty', req.body.difficulty);
@@ -38,6 +40,7 @@ export const createRecipe = async (req: any, res: any) => {
 export const findRecipes = async (req: any, res: any) => {
   try {
     let result;
+    const user = req.user ? req.user : new ObjectId(1);
 
     if (req.query.title) {
       const search = req.query.title;
@@ -50,6 +53,8 @@ export const findRecipes = async (req: any, res: any) => {
         delete req.query.categories;
 
         result = await Recipe.find(req.query)
+          .where('owner')
+          .ne(user)
           .where('isPrivate')
           .equals(false)
           .where('isDraft')
@@ -59,16 +64,21 @@ export const findRecipes = async (req: any, res: any) => {
           .where('categories')
           .in(categories)
           .sort('-_id')
-          .sort('-_id');
+          .limit(req.limit)
+          .skip(req.startIndex);
       } else {
         result = await Recipe.find(req.query)
+          .where('owner')
+          .ne(user)
           .where('isPrivate')
           .equals(false)
           .where('isDraft')
           .equals(false)
           .where('title')
           .regex(regex)
-          .sort('-_id');
+          .sort('-_id')
+          .limit(req.limit)
+          .skip(req.startIndex);
       }
     } else {
       if (req.query.categories) {
@@ -76,24 +86,38 @@ export const findRecipes = async (req: any, res: any) => {
         delete req.query.categories;
 
         result = await Recipe.find(req.query)
+          .where('owner')
+          .ne(user)
           .where('isDraft')
           .equals(false)
           .where('isPrivate')
           .equals(false)
           .where('categories')
           .in(categories)
-          .sort('-_id');
+          .sort('-_id')
+          .limit(req.limit)
+          .skip(req.startIndex);
       } else {
         result = await Recipe.find(req.query)
+          .where('owner')
+          .ne(user)
           .where('isDraft')
           .equals(false)
           .where('isPrivate')
           .equals(false)
-          .sort('-_id');
+          .sort('-_id')
+          .limit(req.limit)
+          .skip(req.startIndex);
       }
     }
 
-    res.status(200).json({ result });
+    const response: any = { result };
+
+    if (res.pagination) {
+      response.pagination = res.pagination;
+    }
+
+    res.status(200).json(response);
   } catch (err) {
     res.status(500).json({ error: true, message: err.message });
   }
@@ -103,10 +127,14 @@ export const findOneRecipe = async (req: any, res: any) => {
   try {
     const recipeId = req.params.recipeId;
     const result = await Recipe.findOne({ _id: recipeId });
+    // @ts-ignore
+    if (result.isPrivate && (!req.user || req.user._id.toString() !== result.owner.toString())) {
+      throw new HttpException(401, 'Unauthorized request');
+    }
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    res.status(err.status || 500).json({ error: true, message: err.message });
   }
 };
 

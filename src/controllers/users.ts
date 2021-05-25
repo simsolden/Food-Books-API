@@ -1,6 +1,7 @@
 import { User } from '../models/user';
 import bcrypt from 'bcrypt';
 import { Recipe } from '../models/recipe';
+import { UserPlanning } from '../models/userPlanning';
 
 export const createUser = async (req: any, res: any, next: any) => {
   const user = new User({
@@ -59,13 +60,14 @@ export const findUsers = async (req: any, res: any, next: any) => {
   }
 };
 
-export const findUserRecipe = async (req: any, res: any, next: any) => {
+export const findUserRecipes = async (req: any, res: any, next: any) => {
   try {
     let result;
 
     if (req.query.title) {
       const search = req.query.title;
       const regex = new RegExp(`.*${search}.*`, 'i');
+      //To be able to use the rest of the query as a document finder, remove title
       delete req.query.title;
 
       if (req.query.categories) {
@@ -79,16 +81,19 @@ export const findUserRecipe = async (req: any, res: any, next: any) => {
           .regex(regex)
           .where('categories')
           .in(categories)
-          .sort('-_id');
+          .sort('-_id')
+          .limit(req.limit)
+          .skip(req.startIndex);
       } else {
         result = await Recipe.find(req.query)
           .where('owner')
           .equals(req.user._id)
           .where('title')
           .regex(regex)
-          .sort('-_id');
+          .sort('-_id')
+          .limit(req.limit)
+          .skip(req.startIndex);
       }
-      //To be able to use the rest of the query as a document finder, remove title
     } else {
       if (req.query.categories) {
         const categories = req.query.categories;
@@ -99,13 +104,26 @@ export const findUserRecipe = async (req: any, res: any, next: any) => {
           .equals(req.user._id)
           .where('categories')
           .in(categories)
-          .sort('-_id');
+          .sort('-_id')
+          .limit(req.limit)
+          .skip(req.startIndex);
       } else {
-        result = await Recipe.find(req.query).where('owner').equals(req.user._id).sort('-_id');
+        result = await Recipe.find(req.query)
+          .where('owner')
+          .equals(req.user._id)
+          .sort('-_id')
+          .limit(req.limit)
+          .skip(req.startIndex);
       }
     }
 
-    res.status(200).json({ result });
+    const response: any = { result };
+
+    if (res.pagination) {
+      response.pagination = res.pagination;
+    }
+
+    res.status(200).json(response);
   } catch (err) {
     res.status(500).json({ error: true, message: err.message });
   }
