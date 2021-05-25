@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { createUserPlanning, findUserPlanning, findOneUserPlanning } from '../controllers/planning';
+import { createUserPlanning, findUserPlanning, addPlanningRecipe } from '../controllers/planning';
+import { auth } from '../middlewares/authentication';
 
 const planningRouter = Router();
 
 planningRouter.post('/planning', createUserPlanning);
 
-planningRouter.get('/planning', findUserPlanning);
+planningRouter.get('/users/planning', auth, findUserPlanning);
 
-planningRouter.get('/planning/:userId', findOneUserPlanning);
+planningRouter.put('/planning', auth, addPlanningRecipe);
 
 export default planningRouter;

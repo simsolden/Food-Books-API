@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import HttpException from '../common/HttpException';
+import { UserPlanning } from './userPlanning';
 
 const { Schema } = mongoose;
 
@@ -54,9 +55,12 @@ const user = new Schema({
 
 user.pre('save', async function (next) {
   const user: any = this;
+
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
+
+  await UserPlanning.create({ user: user._id });
   next();
 });
 

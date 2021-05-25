@@ -19,6 +19,9 @@ const recipe = new Schema(
       ref: 'User',
       required: [true, 'Missing owner id'],
     },
+    username: {
+      type: String,
+    },
     prepTime: {
       type: Number,
       required: [true, 'Missing preparation time'],
@@ -135,6 +138,16 @@ const recipe = new Schema(
   },
   { timestamps: true }
 );
+
+recipe.pre('save', async function (next) {
+  const recipe: any = this;
+
+  const user = await User.findOne({ _id: recipe.owner });
+  // @ts-ignore
+  recipe.username = user!.username;
+
+  next();
+});
 
 recipe.statics.validateUserAndCategories = async (ownerId, categories) => {
   const owner: any = await User.findOne({ _id: ownerId });
