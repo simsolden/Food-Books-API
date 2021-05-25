@@ -1,13 +1,19 @@
+import { ObjectId } from 'mongodb';
 import { Recipe } from '../../models/recipe';
 
 export const pagination = async (req: any, res: any, next: any) => {
   const LIMIT = 8;
+  const user = req.user ? req.user : new ObjectId(1);
   const page = +req.query.page;
+  const sort = req.query.sort;
 
-  res.pagination = {};
+  res.pagination = {
+    currentPage: page,
+  };
   res.pagination.currentPage = page;
 
   delete req.query.page;
+  delete req.query.sort;
 
   const startIndex = (page - 1) * LIMIT;
   const endIndex = page * LIMIT;
@@ -25,6 +31,8 @@ export const pagination = async (req: any, res: any, next: any) => {
       delete req.query.categories;
 
       resultsCount = await Recipe.countDocuments(req.query)
+        .where('owner')
+        .ne(user)
         .where('isPrivate')
         .equals(false)
         .where('isDraft')
@@ -38,6 +46,8 @@ export const pagination = async (req: any, res: any, next: any) => {
       req.query.categories = categories;
     } else {
       resultsCount = await Recipe.countDocuments(req.query)
+        .where('owner')
+        .ne(user)
         .where('isPrivate')
         .equals(false)
         .where('isDraft')
@@ -54,6 +64,8 @@ export const pagination = async (req: any, res: any, next: any) => {
       delete req.query.categories;
 
       resultsCount = await Recipe.countDocuments(req.query)
+        .where('owner')
+        .ne(user)
         .where('isDraft')
         .equals(false)
         .where('isPrivate')
@@ -65,6 +77,8 @@ export const pagination = async (req: any, res: any, next: any) => {
       req.query.categories = categories;
     } else {
       resultsCount = await Recipe.countDocuments(req.query)
+        .where('owner')
+        .ne(user)
         .where('isDraft')
         .equals(false)
         .where('isPrivate')
@@ -87,6 +101,7 @@ export const pagination = async (req: any, res: any, next: any) => {
     };
   }
 
+  req.query.sort = sort;
   req.limit = LIMIT;
   req.startIndex = startIndex;
   next();

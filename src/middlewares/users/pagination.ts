@@ -3,9 +3,14 @@ import { Recipe } from '../../models/recipe';
 export const pagination = async (req: any, res: any, next: any) => {
   const LIMIT = 8;
   const page = +req.query.page;
-  res.pagination = {};
+  const sort = req.query.sort;
+
+  res.pagination = {
+    currentPage: page,
+  };
 
   delete req.query.page;
+  delete req.query.sort;
 
   const startIndex = (page - 1) * LIMIT;
   const endIndex = page * LIMIT;
@@ -74,6 +79,7 @@ export const pagination = async (req: any, res: any, next: any) => {
     };
   }
 
+  req.query.sort = sort;
   req.limit = LIMIT;
   req.startIndex = startIndex;
   next();
