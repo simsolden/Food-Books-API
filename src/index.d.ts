@@ -7,7 +7,7 @@ export enum Difficulty {
 export enum Cost {
   Low = 1,
   Medium,
-  High,
+  Pricy,
 }
 
 export enum RecipeType {
@@ -89,7 +89,7 @@ export interface Recipe {
   prepTime: number;
   cookingTime: number;
   difficulty: ['easy', 'medium', 'difficult'];
-  cost: ['low', 'medium', 'high'];
+  cost: ['low', 'medium', 'pricy'];
   servings: number;
   grade: number;
   description: string;
