@@ -44,6 +44,14 @@ export const login = async (req: any, res: any, next: any) => {
   }
 };
 
+export const autoLogin = async (req: any, res: any, next: any) => {
+  try {
+    res.json({ user: req.user });
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message });
+  }
+};
+
 export const findUsers = async (req: any, res: any, next: any) => {
   try {
     let result;
@@ -63,6 +71,9 @@ export const findUsers = async (req: any, res: any, next: any) => {
 export const findUserRecipes = async (req: any, res: any, next: any) => {
   try {
     let result;
+    const sort = req.query.sort ?? '_id';
+
+    delete req.query.sort;
 
     if (req.query.title) {
       const search = req.query.title;
@@ -81,7 +92,7 @@ export const findUserRecipes = async (req: any, res: any, next: any) => {
           .regex(regex)
           .where('categories')
           .in(categories)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       } else {
@@ -90,7 +101,7 @@ export const findUserRecipes = async (req: any, res: any, next: any) => {
           .equals(req.user._id)
           .where('title')
           .regex(regex)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       }
@@ -104,14 +115,14 @@ export const findUserRecipes = async (req: any, res: any, next: any) => {
           .equals(req.user._id)
           .where('categories')
           .in(categories)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       } else {
         result = await Recipe.find(req.query)
           .where('owner')
           .equals(req.user._id)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       }
