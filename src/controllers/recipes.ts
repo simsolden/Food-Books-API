@@ -41,6 +41,9 @@ export const findRecipes = async (req: any, res: any) => {
   try {
     let result;
     const user = req.user ? req.user : new ObjectId(1);
+    const sort = req.query.sort ?? '-_id';
+
+    delete req.query.sort;
 
     if (req.query.title) {
       const search = req.query.title;
@@ -63,7 +66,7 @@ export const findRecipes = async (req: any, res: any) => {
           .regex(regex)
           .where('categories')
           .in(categories)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       } else {
@@ -76,7 +79,7 @@ export const findRecipes = async (req: any, res: any) => {
           .equals(false)
           .where('title')
           .regex(regex)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       }
@@ -94,7 +97,7 @@ export const findRecipes = async (req: any, res: any) => {
           .equals(false)
           .where('categories')
           .in(categories)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       } else {
@@ -105,7 +108,7 @@ export const findRecipes = async (req: any, res: any) => {
           .equals(false)
           .where('isPrivate')
           .equals(false)
-          .sort('-_id')
+          .sort(sort)
           .limit(req.limit)
           .skip(req.startIndex);
       }
@@ -138,14 +141,79 @@ export const findOneRecipe = async (req: any, res: any) => {
   }
 };
 
+export const updateRecipe = async (req: any, res: any) => {
+  const recipeId = req.params.recipeId;
+
+  const recipe: any = {
+    title: req.body.title,
+    owner: req.user._id,
+    prepTime: +req.body.prepTime,
+    servings: req.body.servings,
+    description: req.body.description,
+    categories: req.body.categories,
+    prepSteps: req.body.prepSteps,
+    ingredients: req.body.ingredients,
+  };
+
+  +req.body.prepTime > 60
+    ? (recipe.speed = 'slow')
+    : +req.body.cookingTime > 20
+    ? (recipe.speed = 'medium')
+    : (recipe.speed = 'fast');
+
+  req.body.cookingTime && (recipe.cookingTime = req.body.cookingTime);
+  req.body.difficulty && (recipe.difficulty = req.body.difficulty);
+  req.body.cost && (recipe.cost = req.body.cost);
+  req.body.grade && (recipe.grade = req.body.grade);
+  req.body.pictures && (recipe.pictures = req.body.pictures);
+  req.body.type && (recipe.type = req.body.type);
+  req.body.isPrivate && (recipe.isPrivate = req.body.isPrivate);
+
+  try {
+    // @ts-ignore
+    await Recipe.validateUserAndCategories(req.user._id, req.body.categories);
+    const result = await Recipe.updateOne({ _id: recipeId }, recipe);
+
+    res.status(200).json({ result });
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ error: true, message: err.message });
+  }
+};
+
 export const uploadPicture = async (req: any, res: any) => {
   if (req.file) {
     if (['image/jpeg', 'image/png', 'image/webp'].includes(req.file.mimetype)) {
-      const extension = req.file.originalname.split('.')[1];
+      const extension = req.file.mimytype.split('/')[1];
       const newFileName = `${req.file.destination}/${req.file.filename}.${extension}`;
       await fs.rename(req.file.path, newFileName, (err: any) => {
         // throw new Error();
       });
+      res.json(`${req.file.filename}.${extension}`);
+    } else {
+      res.status(422).json({ message: 'Unvalid format' });
+    }
+  } else {
+    res.status(500).json({ message: 'no file' });
+  }
+};
+
+export const updatePicture = async (req: any, res: any) => {
+  if (req.file) {
+    if (['image/jpeg', 'image/png', 'image/webp', 'image/svg'].includes(req.file.mimetype)) {
+      const extension = req.file.mimetype.split('/')[1];
+      const newFileName = `${req.file.destination}/${req.file.filename}.${extension}`;
+
+      await fs.rename(req.file.path, newFileName, (err: any) => {
+        // throw new Error();
+      });
+
+      console.log(req.body.oldPicture !== 'default-recipe.jpg', req.shouldDelete);
+      if (req.body.oldPicture !== 'default-recipe.jpg' && req.shouldDelete) {
+        await fs.unlink(`${req.file.destination}/${req.body.oldPicture}`, (err) => {
+          //throw new Error();
+        });
+      }
+
       res.json(`${req.file.filename}.${extension}`);
     } else {
       res.status(422).json({ message: 'Unvalid format' });

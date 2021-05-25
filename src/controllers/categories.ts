@@ -15,7 +15,6 @@ export const createCategory = async (req: any, res: any, next: any) => {
     res.status(200).json({ category });
   } catch (err) {
     res.status(500).json({ error: true, message: err.message });
-    console.error(err);
   }
 };
 
@@ -30,7 +29,6 @@ export const findCategories = async (req: any, res: any, next: any) => {
     res.status(200).json({ result });
   } catch (err) {
     res.status(500).json({ error: true, message: err.message });
-    console.error(err);
   }
 };
 
@@ -41,6 +39,5 @@ export const findOneCategory = async (req: any, res: any, next: any) => {
     res.status(200).json({ result });
   } catch (err) {
     res.status(500).json({ error: true, message: err.message });
-    console.error(err);
   }
 };
