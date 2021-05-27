@@ -116,9 +116,7 @@ export const findRecipes = async (req: any, res: any) => {
 
     const response: any = { result };
 
-    if (res.pagination) {
-      response.pagination = res.pagination;
-    }
+    res.pagination && (response.pagination = res.pagination);
 
     res.status(200).json(response);
   } catch (err) {
@@ -130,10 +128,24 @@ export const findOneRecipe = async (req: any, res: any) => {
   try {
     const recipeId = req.params.recipeId;
     const result = await Recipe.findOne({ _id: recipeId });
+
     // @ts-ignore
     if (result.isPrivate && (!req.user || req.user._id.toString() !== result.owner.toString())) {
       throw new HttpException(401, 'Unauthorized request');
     }
+
+    res.status(200).json({ result });
+  } catch (err) {
+    res.status(err.status || 500).json({ error: true, message: err.message });
+  }
+};
+
+export const deleteRecipe = async (req: any, res: any) => {
+  try {
+    const recipeId = req.params.recipeId;
+    const userId = req.user._id;
+
+    const result = await Recipe.deleteOne({ _id: recipeId, owner: userId });
 
     res.status(200).json({ result });
   } catch (err) {
@@ -155,6 +167,7 @@ export const updateRecipe = async (req: any, res: any) => {
     ingredients: req.body.ingredients,
   };
 
+  // slow > 60 > medium > 20 > fast
   +req.body.prepTime > 60
     ? (recipe.speed = 'slow')
     : +req.body.cookingTime > 20
@@ -207,7 +220,6 @@ export const updatePicture = async (req: any, res: any) => {
         // throw new Error();
       });
 
-      console.log(req.body.oldPicture !== 'default-recipe.jpg', req.shouldDelete);
       if (req.body.oldPicture !== 'default-recipe.jpg' && req.shouldDelete) {
         await fs.unlink(`${req.file.destination}/${req.body.oldPicture}`, (err) => {
           //throw new Error();
