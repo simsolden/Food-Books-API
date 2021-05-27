@@ -9,7 +9,7 @@ const userPlanning = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'Missing user id'],
+    required: [true, "Id de l'utilisateur manquant"],
   },
   planning: {
     type: [
@@ -17,21 +17,24 @@ const userPlanning = new Schema({
         recipeId: {
           type: Schema.Types.ObjectId,
           ref: 'Recipe',
-          required: [true, 'missing recipe id'],
+          required: [true, 'Id de la recette manquant'],
         },
         date: {
           type: Date,
-          min: [new Date(), 'birthdate between now and 10 days in the future'],
-          max: [new Date(+new Date() + 10 * 24 * 60 * 60 * 1000), 'birthdate between now and 10 days in the future'],
-          required: [true, 'missing date'],
+          min: [new Date(), 'La date est dépassée'],
+          max: [
+            new Date(+new Date() + 10 * 24 * 60 * 60 * 1000),
+            'La date ne peut aller que jusque 6 jours dans le futur',
+          ],
+          required: [true, 'Date manquante'],
         },
       },
     ],
     validate: [
       (planning: PlanningRecipe[]) => {
-        return planning.length < 100 && planning.length === new Set(planning).size;
+        return planning.length < 100;
       },
-      'planning recipes must be unique and less than 100 recipes',
+      'Maximum 100 recettes dans un planning',
     ],
     default: [],
   },

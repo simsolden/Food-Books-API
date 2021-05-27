@@ -10,9 +10,9 @@ const recipe = new Schema(
   {
     title: {
       type: String,
-      required: [true, 'Missing recipe title'],
-      minLength: [3, 'recipe title must be between 3 and 40 characters'],
-      maxLength: [40, 'recipe title must be between 3 and 40 characters'],
+      required: [true, 'Titre de la recette manquant'],
+      minLength: [3, 'Le titre doit faire entre 3 et 60 caractères maximum'],
+      maxLength: [60, 'Le titre doit faire entre 3 et 60 caractères maximum'],
     },
     owner: {
       type: Schema.Types.ObjectId,
@@ -24,12 +24,12 @@ const recipe = new Schema(
     },
     prepTime: {
       type: Number,
-      required: [true, 'Missing preparation time'],
-      min: [1, 'recipe preparation time must be between strictly positive '],
+      required: [true, 'Temps de préparation manquant'],
+      min: [1, 'Le temps de préparation doit être supérieur à 0'],
     },
     cookingTime: {
       type: Number,
-      min: [0, 'recipe cookin time must be positive '],
+      min: [0, 'Le temps de cuisson doit être suppérieur à zéro'],
       default: 0,
     },
     difficulty: {
@@ -44,25 +44,25 @@ const recipe = new Schema(
     },
     servings: {
       type: Number,
-      required: [true, 'Missing servings'],
-      min: [1, 'recipe servings must be between 1 and 12'],
-      max: [12, 'recipe servings must be between 1 and 12'],
+      required: [true, 'Nombre de portions manquant'],
+      min: [1, 'Le nombre de portion doit être en 1 et 20'],
+      max: [12, 'Le nombre de portion doit être en 1 et 20'],
     },
     grade: {
       type: Number,
-      min: [1, 'recipe grade must be between strictly positive '],
-      max: [5, 'recipe grade time must be between strictly positive '],
+      min: [1, 'La note doit être entre 1 et 5'],
+      max: [5, 'La note doit être entre 1 et 5'],
       default: 5,
     },
     description: {
       type: String,
-      required: [true, 'Missing recipe description'],
-      minLength: [5, 'recipe description must be between 5 and 255 characters'],
-      maxLength: [510, 'recipe description must be between 5 and 255 characters'],
+      required: [true, 'Description manquante'],
+      minLength: [5, 'La description doit faire entre 5 et 510 caractères'],
+      maxLength: [510, 'La description doit faire entre 5 et 510 caractères'],
     },
     pictures: {
       type: [String],
-      validate: [(pictures: string[]) => pictures.length <= 5, 'Maximum 5 pictures'],
+      validate: [(pictures: string[]) => pictures.length <= 5, 'Maximum 5 images'],
       default: ['default-recipe.jpg'],
     },
     type: {
@@ -75,14 +75,14 @@ const recipe = new Schema(
         {
           type: Schema.Types.ObjectId,
           ref: 'Category',
-          required: [true, 'missing category id'],
+          required: [true, 'Id de la catégorie manquante'],
         },
       ],
       validate: [
         (categories: number[]) => {
           return categories.length === new Set(categories).size;
         },
-        'categories must be unique',
+        'Les catégories doivent être unique',
       ],
     },
     ingredients: {
@@ -90,13 +90,12 @@ const recipe = new Schema(
         {
           quantity: {
             type: Number,
-            min: [1, 'quantity must be strictly positive'],
-            required: [true, 'missing ingredient quantity'],
+            min: [0, 'La quantité doit être égale ou supérieure à zéro'],
           },
           measurement: {
             type: String,
             enum: ['other', 'kg', 'g', 'l', 'cl', 'ml', 'c.c.', 'c.s.', 'sachet'],
-            default: '',
+            default: 'other',
           },
           name: {
             type: String,
@@ -106,21 +105,22 @@ const recipe = new Schema(
         },
       ],
       validate: [
-        (ingredients: Ingredient[]) => ingredients.length > 0 && ingredients.length < 150,
-        'Number of ingredients must be between 1 and 150',
+        (ingredients: Ingredient[]) => ingredients.length > 0 && ingredients.length < 100,
+        "Le nombre d'ingrédients doit être entre 1 et 100",
       ],
     },
     prepSteps: {
       type: [
         {
           type: String,
-          maxLength: [510, 'recipe step must be between 5 and 255 characters'],
+          minLength: [3, "L'étape doit faire entre entre 3 et 510 caractères"],
+          maxLength: [510, "L'étape doit faire entre entre 3 et 510 caractères"],
         },
       ],
-      required: [true, 'missing recipe steps'],
+      required: [true, 'Étapes manquantes'],
       validate: [
-        (prepSteps: string[]) => prepSteps.length > 0 && prepSteps.length <= 30,
-        'There must be between 1 and 30 preparation steps',
+        (prepSteps: string[]) => prepSteps.length > 0 && prepSteps.length <= 40,
+        "Le nombre d'étapes doit être entre 1 et 40",
       ],
     },
     speed: {

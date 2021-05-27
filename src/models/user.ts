@@ -3,16 +3,15 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import HttpException from '../common/HttpException';
 import { UserPlanning } from './userPlanning';
-import { Recipe } from './recipe';
 
 const { Schema } = mongoose;
 
 const user = new Schema({
   username: {
     type: String,
-    required: [true, 'Missing username'],
-    minLength: [3, 'recipe title must be between 3 and 40 characters'],
-    unique: [true, 'Username already taken'],
+    required: [true, "Nom d'utilisateur manquant."],
+    minLength: [3, 'Le pseudo doit faire minimum 3 caractères'],
+    unique: [true, "Nom d'utilisateur déjà pris."],
   },
   role: {
     type: String,
@@ -21,27 +20,33 @@ const user = new Schema({
   },
   firstname: {
     type: String,
-    required: [true, 'Missing firstname'],
-    minLength: [2, 'firstname must be between 2 and 40 characters'],
-    maxLength: [40, 'firstname must be between 2 and 40 characters'],
+    required: [true, 'Prénom manquant'],
+    minLength: [2, 'Prénom entre 2 et 40 caractères maximum'],
+    maxLength: [40, 'Prénom entre 2 et 40 caractères maximum'],
   },
   lastname: {
     type: String,
-    required: [true, 'Missing lastname'],
-    minLength: [2, 'lastname must be between 2 and 40 characters'],
-    maxLength: [40, 'lastname must be between 2 and 40 characters'],
+    required: [true, 'Nom de famille manquant'],
+    minLength: [2, 'Nom de famille entre 2 et 40 caractères maximum'],
+    maxLength: [40, 'Nom de famille entre 2 et 40 caractères maximum'],
   },
   birthdate: {
     type: Date,
-    required: [true, 'missing birthdate'],
-    min: [new Date(+new Date() - 120 * 365 * 24 * 60 * 60 * 1000), 'birthdate between 120 years ago and 14 years ago'],
-    max: [new Date(+new Date() - 14 * 365 * 24 * 60 * 60 * 1000), 'birthdate between 120 years ago and 14 years ago'],
+    required: [true, 'Date de naissance manquant'],
+    min: [
+      new Date(+new Date() - 120 * 365 * 24 * 60 * 60 * 1000),
+      'Date de naissance entre 120 et 14 ans dans le passé',
+    ],
+    max: [
+      new Date(+new Date() - 14 * 365 * 24 * 60 * 60 * 1000),
+      'Date de naissance entre 120 et 14 ans dans le passé',
+    ],
   },
   email: {
     type: String,
-    required: [true, 'Missing email'],
-    minLength: [5, 'email must be min 5 characters'],
-    unique: [true, 'email already used'],
+    required: [true, 'Email manquant'],
+    minLength: [5, "L'email doit faire minimum 5 caractères"],
+    unique: [true, 'Email déjà utilisé'],
   },
   picturiUri: {
     type: String,
@@ -49,12 +54,12 @@ const user = new Schema({
   },
   password: {
     type: String,
-    required: [true, 'Missing password'],
-    minLength: [6, 'email must be min 6 characters'],
+    required: [true, 'Mot de passe manquant'],
+    minLength: [6, 'Le mot de passe doit faire minimum 6 caractères'],
   },
 });
 
-user.pre('save', async (next) => {
+user.pre('save', async function (next) {
   const user: any = this;
 
   if (user.isModified('password')) {
@@ -65,7 +70,7 @@ user.pre('save', async (next) => {
   next();
 });
 
-user.methods.generateAuthToken = async () => {
+user.methods.generateAuthToken = async function () {
   const user: any = this;
 
   const token = jwt.sign({ userId: user._id.toString() }, process.env.ACCESS_TOKEN_SECRET!);
