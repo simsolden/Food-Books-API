@@ -7,7 +7,6 @@ export const verifyPicture = async (req: any, res: any, next: any) => {
   const user = new User(req.user);
 
   try {
-    console.log(req.body);
     if (oldPicture !== 'default-recipe.jpg') {
       const recipe = await Recipe.findOne({ pictures: oldPicture }).where('owner').equals(user._id);
 

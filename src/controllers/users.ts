@@ -1,7 +1,6 @@
 import { User } from '../models/user';
 import bcrypt from 'bcrypt';
 import { Recipe } from '../models/recipe';
-import { UserPlanning } from '../models/userPlanning';
 
 export const createUser = async (req: any, res: any, next: any) => {
   const user = new User({
@@ -71,7 +70,7 @@ export const findUsers = async (req: any, res: any, next: any) => {
 export const findUserRecipes = async (req: any, res: any, next: any) => {
   try {
     let result;
-    const sort = req.query.sort ?? '_id';
+    const sort = req.query.sort ?? '-_id';
 
     delete req.query.sort;
 
