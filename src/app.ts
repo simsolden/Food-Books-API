@@ -2,7 +2,6 @@ import express from 'express';
 import compression from 'compression';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import { errorHandler } from './middlewares/error';
 import { notFoundHandler } from './middlewares/notFound';
 import categoriesRouter from './routes/categories';
 import ratingsRouter from './routes/ratings';
@@ -33,7 +32,6 @@ app.use(recipesRouter);
 recipesRouter.post('/recipes/update-picture', auth, upload.single('image'), verifyPicture, updatePicture);
 recipesRouter.post('/recipes/upload', auth, upload.single('image'), uploadPicture);
 app.use(usersRouter);
-app.use(errorHandler);
 app.use(notFoundHandler);
 
 mongoose.set('useNewUrlParser', true);

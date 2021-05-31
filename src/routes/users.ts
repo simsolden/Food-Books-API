@@ -19,12 +19,12 @@ usersRouter.post('/login', login);
 
 usersRouter.get('/auto-login', auth, autoLogin);
 
-usersRouter.get('/users', findUsers);
+// usersRouter.get('/users', findUsers);
 
 usersRouter.get('/users/recipes', auth, pagination, findUserRecipes);
 
-usersRouter.get('/users/:userId', findOneUser);
+// usersRouter.get('/users/:userId', findOneUser);
 
-usersRouter.put('/users/:userId', updateUser);
+usersRouter.put('/users/:userId', auth, updateUser);
 
 export default usersRouter;

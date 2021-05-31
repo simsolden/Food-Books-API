@@ -1,6 +1,7 @@
 import { User } from '../models/user';
 import bcrypt from 'bcrypt';
 import { Recipe } from '../models/recipe';
+import HttpException from '../common/HttpException';
 
 export const createUser = async (req: any, res: any, next: any) => {
   const user = new User({
@@ -48,22 +49,6 @@ export const autoLogin = async (req: any, res: any, next: any) => {
     res.json({ user: req.user });
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message });
-  }
-};
-
-export const findUsers = async (req: any, res: any, next: any) => {
-  try {
-    let result;
-
-    if (req.query) {
-      result = await User.find(req.query);
-    } else {
-      result = await User.find();
-    }
-
-    res.status(200).json({ result });
-  } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
   }
 };
 
@@ -139,16 +124,16 @@ export const findUserRecipes = async (req: any, res: any, next: any) => {
   }
 };
 
-export const findOneUser = async (req: any, res: any, next: any) => {
-  try {
-    const userId = req.params.userId;
-    const result = await User.findOne({ _id: userId });
+// export const findOneUser = async (req: any, res: any, next: any) => {
+//   try {
+//     const userId = req.params.userId;
+//     const result = await User.findOne({ _id: userId });
 
-    res.status(200).json({ result });
-  } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
-  }
-};
+//     res.status(200).json({ result });
+//   } catch (err) {
+//     res.status(500).json({ error: true, message: err.message });
+//   }
+// };
 
 export const updateUser = async (req: any, res: any, next: any) => {
   if (req.body.password) {
@@ -157,10 +142,14 @@ export const updateUser = async (req: any, res: any, next: any) => {
 
   try {
     const userId = req.params.userId;
-    const result = await User.findOneAndUpdate({ _id: userId }, req.body, { new: true });
 
-    res.status(200).json({ result });
+    if (userId === req.user._id) {
+      const result = await User.findOneAndUpdate({ _id: userId }, req.body, { new: true });
+      res.status(200).json({ result });
+    }
+
+    throw new HttpException(401, 'unauthorized');
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    res.status(err.status || 500).json({ error: true, message: err.message });
   }
 };

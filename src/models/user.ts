@@ -37,10 +37,7 @@ const user = new Schema({
       new Date(+new Date() - 120 * 365 * 24 * 60 * 60 * 1000),
       'Date de naissance entre 120 et 14 ans dans le passé',
     ],
-    max: [
-      new Date(+new Date() - 14 * 365 * 24 * 60 * 60 * 1000),
-      'Date de naissance entre 120 et 14 ans dans le passé',
-    ],
+    max: [new Date(+new Date() - 8 * 365 * 24 * 60 * 60 * 1000), 'Date de naissance entre 120 et 14 ans dans le passé'],
   },
   email: {
     type: String,
