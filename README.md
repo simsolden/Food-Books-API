@@ -26,7 +26,7 @@ tsc
 ```
 ou en watch mode (écoute et update chaque changement)
 ```bash
-tsc -w // watchmode
+tsc -w
 ```
 3. Ajouter le dossier assets avec son contenu à la racine du dossier dist.
 4. Depuis la racine du dossier api, lancer la commande 
