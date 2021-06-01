@@ -5,6 +5,10 @@ Food Books est une application Web de gestion de recettes. Le but premier du sit
 Ils pourront donc créer, modifier, voir et supprimer leurs recettes. Ils seront capables de filtrer, trier et organiser leurs recettes de différentes manières. Ils pourront aussi voir les recettes des autres utilisateurs si ceux-ci décident de partager leurs recettes. 
 En plus de cela l’utilisateur connecté pourra gérer un planning dans lequel il pourra placer ses recettes ou celles partagées par les autres utilisateurs afin d’organiser ses repas de la semaine. Une liste de catégories sera aussi disponible avec différentes photos et description dans le but d’aider l’utilisateur en manque d’inspiration.
 
+## Documentation api
+
+https://github.com/simsolden/Food-Books-API
+
 ## Installation
 
 1.Remplissez le fichier .env avec les informations correspondantes : 
