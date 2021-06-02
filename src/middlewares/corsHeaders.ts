@@ -5,8 +5,6 @@ export const setHeaders = (req: any, res: any, next: any) => {
   // Website you wish to allow to connect
   acceptedOrigins.includes(req.headers.origin) && res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
 
-  // acceptedOrigins.includes(req.headers.origin) && res.setHeader('Access-Control-Allow-Origin', '*');
-
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
