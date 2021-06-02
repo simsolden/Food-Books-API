@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { upload } from '../app';
 import { createRecipe, findOneRecipe, findRecipes, updateRecipe, deleteRecipe } from '../controllers/recipes';
 import { auth } from '../middlewares/authentication';
 import { getUser } from '../middlewares/getUser';

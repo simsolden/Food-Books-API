@@ -1,13 +1,5 @@
 import { Router } from 'express';
-import {
-  createUser,
-  findUsers,
-  findOneUser,
-  updateUser,
-  login,
-  findUserRecipes,
-  autoLogin,
-} from '../controllers/users';
+import { createUser, updateUser, login, findUserRecipes, autoLogin } from '../controllers/users';
 import { auth } from '../middlewares/authentication';
 import { pagination } from '../middlewares/users/pagination';
 

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import { ObjectId } from 'mongodb';
 import HttpException from '../common/HttpException';
-import { Ingredient } from '../index.d';
 import { Recipe } from '../models/recipe';
+import safe from 'safe-regex';
 
 export const createRecipe = async (req: any, res: any) => {
   const recipe = new Recipe({
@@ -48,6 +48,9 @@ export const findRecipes = async (req: any, res: any) => {
     if (req.query.title) {
       const search = req.query.title;
       const regex = new RegExp(`.*${search}.*`, 'i');
+      if (!safe(regex)) {
+        throw new HttpException(403, 'access refused');
+      }
       //To be able to use the rest of the query as a document finder, remove title
       delete req.query.title;
 
@@ -196,12 +199,12 @@ export const updateRecipe = async (req: any, res: any) => {
 export const uploadPicture = async (req: any, res: any) => {
   if (req.file) {
     if (['image/jpeg', 'image/png', 'image/webp'].includes(req.file.mimetype)) {
-      const extension = req.file.mimytype.split('/')[1];
-      const newFileName = `${req.file.destination}/${req.file.filename}.${extension}`;
+      const extension = req.file.mimetype.split('/')[1];
+      const newFileName = `${req.file.destination}/${req.file.filename}_${req.user._id}.${extension}`;
       await fs.rename(req.file.path, newFileName, (err: any) => {
         // throw new Error();
       });
-      res.json(`${req.file.filename}.${extension}`);
+      res.json(`${req.file.filename}_${req.user._id}.${extension}`);
     } else {
       res.status(422).json({ message: 'Unvalid format' });
     }
@@ -214,7 +217,7 @@ export const updatePicture = async (req: any, res: any) => {
   if (req.file) {
     if (['image/jpeg', 'image/png', 'image/webp', 'image/svg'].includes(req.file.mimetype)) {
       const extension = req.file.mimetype.split('/')[1];
-      const newFileName = `${req.file.destination}/${req.file.filename}.${extension}`;
+      const newFileName = `${req.file.destination}/${req.file.filename}_${req.user._id}.${extension}`;
 
       await fs.rename(req.file.path, newFileName, (err: any) => {
         // throw new Error();
@@ -226,7 +229,7 @@ export const updatePicture = async (req: any, res: any) => {
         });
       }
 
-      res.json(`${req.file.filename}.${extension}`);
+      res.json(`${req.file.filename}_${req.user._id}.${extension}`);
     } else {
       res.status(422).json({ message: 'Unvalid format' });
     }

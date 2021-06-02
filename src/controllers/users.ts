@@ -2,6 +2,7 @@ import { User } from '../models/user';
 import bcrypt from 'bcrypt';
 import { Recipe } from '../models/recipe';
 import HttpException from '../common/HttpException';
+import safe from 'safe-regex';
 
 export const createUser = async (req: any, res: any, next: any) => {
   const user = new User({
@@ -62,6 +63,9 @@ export const findUserRecipes = async (req: any, res: any, next: any) => {
     if (req.query.title) {
       const search = req.query.title;
       const regex = new RegExp(`.*${search}.*`, 'i');
+      if (!safe(regex)) {
+        throw new HttpException(403, 'access refused');
+      }
       //To be able to use the rest of the query as a document finder, remove title
       delete req.query.title;
 

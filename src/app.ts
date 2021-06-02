@@ -15,13 +15,13 @@ import { uploadPicture, updatePicture } from './controllers/recipes';
 import helmet from 'helmet';
 import { verifyPicture } from './middlewares/recipes/verifyPicture';
 
-const app = express();
-
 export const upload = multer({ dest: __dirname + '/assets', limits: { fileSize: 3000000 } });
 
-app.use(helmet());
+const app = express();
+
 app.use(compression());
 app.use(express.json());
+app.use(helmet());
 app.use('/images', express.static(__dirname + '/assets'));
 app.use(setHeaders);
 app.use(categoriesRouter);
@@ -43,14 +43,5 @@ mongoose.connect(process.env.DB_URL || 'mongodb://localhost/food-books', {
 });
 
 const db = mongoose.connection;
-
-// db.on('error', console.error.bind(console, 'connection error:'));
-// db.once('open', async function () {
-//   try {
-//     await Recipe.updateMany({ cookingTime: { $exists: false } }, { cookingTime: 0 });
-//   } catch (err) {
-//     console.error(err);
-//   }
-// });
 
 app.listen(3030, () => console.log('listening to 3030'));
