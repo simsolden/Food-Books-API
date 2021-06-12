@@ -7,7 +7,7 @@ En plus de cela l’utilisateur connecté pourra gérer un planning dans lequel 
 
 ## Documentation api
 
-https://github.com/simsolden/Food-Books-API
+https://app.swaggerhub.com/apis-docs/foodbooks.fr/FoodBooksAPI/1.0.0
 
 ## Installation
 
