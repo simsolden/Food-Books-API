@@ -2,18 +2,21 @@ import express from 'express';
 import compression from 'compression';
 import mongoose from 'mongoose';
 import multer from 'multer';
+import helmet from 'helmet';
+
+import { auth } from './middlewares/authentication';
+import { setHeaders } from './middlewares/corsHeaders';
 import { notFoundHandler } from './middlewares/notFound';
-import categoriesRouter from './routes/categories';
+import { verifyPicture } from './middlewares/recipes/verifyPicture';
+
+import { uploadPicture, updatePicture } from './controllers/recipes';
+
+import usersRouter from './routes/users';
 import ratingsRouter from './routes/ratings';
 import recipesRouter from './routes/recipes';
-import usersRouter from './routes/users';
-import favouritesRouter from './routes/favourites';
 import planningRouter from './routes/planning';
-import { setHeaders } from './middlewares/corsHeaders';
-import { auth } from './middlewares/authentication';
-import { uploadPicture, updatePicture } from './controllers/recipes';
-import helmet from 'helmet';
-import { verifyPicture } from './middlewares/recipes/verifyPicture';
+import categoriesRouter from './routes/categories';
+import favouritesRouter from './routes/favourites';
 
 export const upload = multer({ dest: __dirname + '/assets', limits: { fileSize: 3000000 } });
 
