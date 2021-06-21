@@ -45,6 +45,10 @@ const user = new Schema({
     minLength: [5, "L'email doit faire minimum 5 caractères"],
     unique: [true, 'Email déjà utilisé'],
   },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
   picturiUri: {
     type: String,
     default: 'default-avatar.jpg',
@@ -78,11 +82,11 @@ user.methods.generateAuthToken = async function () {
 user.statics.findByCredentials = async (email, password) => {
   const user: any = await User.findOne({ email });
   if (!user) {
-    throw new HttpException(401, 'Unable to login.');
+    throw new HttpException(401, 'Identifiants incorrects.');
   }
 
   if (!(await bcrypt.compare(password, user.password))) {
-    throw new HttpException(401, 'Unable to login.');
+    throw new HttpException(401, 'Identifiants incorrects.');
   }
 
   return user;

@@ -30,7 +30,11 @@ export const findUserPlanning = async (req: any, res: any, next: any) => {
 
     if (userPlanning) {
       // @ts-ignore
-      const ids = userPlanning.planning.map((recipe) => recipe.recipeId);
+      const ids = userPlanning.planning.map((recipe) => {
+        if (recipe.date >= new Date()) {
+          return recipe.recipeId;
+        }
+      });
       const recipes = await Recipe.find().where('_id').in(ids).exec();
 
       res.status(200).json({ userPlanning, recipes });

@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { createUser, updateUser, login, findUserRecipes, autoLogin } from '../controllers/users';
+import { createUser, updateUser, login, findUserRecipes, autoLogin, verifyAddress } from '../controllers/users';
 import { auth } from '../middlewares/authentication';
 import { pagination } from '../middlewares/users/pagination';
 import { userBruteforce, globalBruteforce } from '../common/ExpressBrute';
 
 const usersRouter = Router();
 
-usersRouter.post('/users', createUser);
+usersRouter.post('/users', globalBruteforce.prevent, createUser);
 
 usersRouter.post(
   '/login',
@@ -20,7 +20,9 @@ usersRouter.post(
   login
 );
 
-usersRouter.get('/auto-login', auth, autoLogin);
+usersRouter.get('/confirmation', auth, verifyAddress);
+
+usersRouter.get('/auto-login', globalBruteforce.prevent, auth, autoLogin);
 
 // usersRouter.get('/users', findUsers);
 

@@ -10,8 +10,15 @@ export const auth = async (req: any, res: any, next: any) => {
     if (!sentToken) {
       throw new HttpException(401, 'Wrong or missing token');
     }
-    // Verify token validity abd retrieve its decoded payload
-    const decoded = jwt.verify(sentToken, process.env.ACCESS_TOKEN_SECRET!);
+
+    let decoded;
+
+    if (req.url === '/confirmation') {
+      decoded = jwt.verify(sentToken, process.env.EMAIL_TOKEN_SECRET!);
+    } else {
+      // Verify token validity abd retrieve its decoded payload
+      decoded = jwt.verify(sentToken, process.env.ACCESS_TOKEN_SECRET!);
+    }
 
     if (!decoded) {
       throw new HttpException(401, 'Wrong or missing token');
@@ -21,7 +28,7 @@ export const auth = async (req: any, res: any, next: any) => {
     const user = await User.findOne({ _id: decoded.userId });
 
     if (!user) {
-      throw new HttpException(401, 'Please login');
+      throw new HttpException(401, 'User not found');
     }
     // Attach it to the request
     req.user = user;

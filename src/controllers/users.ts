@@ -1,8 +1,11 @@
-import { User } from '../models/user';
 import bcrypt from 'bcrypt';
-import { Recipe } from '../models/recipe';
-import HttpException from '../common/HttpException';
 import safe from 'safe-regex';
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+
+import HttpException from '../common/HttpException';
+import { User } from '../models/user';
+import { Recipe } from '../models/recipe';
 
 export const createUser = async (req: any, res: any, next: any) => {
   const user = new User({
@@ -17,16 +20,43 @@ export const createUser = async (req: any, res: any, next: any) => {
   req.body.role && user.set('role', req.body.role);
   req.body.pictureUri && user.set('picturiUri', req.body.picturiUri);
 
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+      user: 'jeromy73@ethereal.email',
+      pass: '4Mm33ApMEFGDMYACW2',
+    },
+  });
+
   try {
     const userResponse = await User.create(user);
     // @ts-ignore
     userResponse._doc.password = '';
     // @ts-ignore
-    const token = await user.generateAuthToken();
+    const confirmationToken = jwt.sign({ userId: user._id.toString() }, process.env.EMAIL_TOKEN_SECRET!);
+    const url = `${process.env.WEBSITE_URL}/confirmation/${confirmationToken}`;
+
+    let info = await transporter.sendMail({
+      from: '"FoodBooks" <info@foodbooks.fr>', // sender address
+      to: req.body.email, // list of receivers
+      subject: 'Email de confirmation Foodbooks.fr', // Subject line
+      html: `<b>Cliquez sur ce lien pour confirmer votre inscription FoodBooks : <a target="_blank" href="${url}">${process.env.WEBSITE_URL}/confirmation</a></b>`, // html body
+    });
+
     // @ts-ignore
-    res.status(200).json({ user: { ...userResponse._doc }, token });
+    res.status(200).json({ user: { ...userResponse._doc } });
   } catch (err) {
     res.status(500).json({ error: true, message: err.message });
+  }
+};
+
+export const verifyAddress = async (req: any, res: any, next: any) => {
+  try {
+    const result = await User.updateOne({ _id: req.user._id }, { emailVerified: true });
+    res.json({ updated: result.nModified });
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message });
   }
 };
 
@@ -35,11 +65,17 @@ export const login = async (req: any, res: any, next: any) => {
   try {
     // @ts-ignore
     const user = await User.findByCredentials(email, password);
+
+    if (!user.emailVerified) {
+      throw new HttpException(403, 'Compte non vérifié. ');
+    }
     user.password = '';
     // @ts-ignore
     const token = await user.generateAuthToken();
 
-    return res.json({ user, token });
+    req.brute.reset(function () {});
+
+    res.json({ user, token });
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message });
   }
