@@ -33,7 +33,9 @@ export const createRecipe = async (req: any, res: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(err.statusCode || 500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(err.statusCode || 500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -123,7 +125,9 @@ export const findRecipes = async (req: any, res: any) => {
 
     res.status(200).json(response);
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -139,7 +143,9 @@ export const findOneRecipe = async (req: any, res: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(err.status || 500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(err.status || 500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -152,7 +158,9 @@ export const deleteRecipe = async (req: any, res: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(err.status || 500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(err.status || 500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -192,7 +200,9 @@ export const updateRecipe = async (req: any, res: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(err.statusCode || 500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(err.statusCode || 500).json({ error: true, message: err.message });
+    }
   }
 };
 

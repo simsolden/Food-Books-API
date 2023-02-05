@@ -12,7 +12,9 @@ export const createUserFavourites = async (req: any, res: any, next: any) => {
 
     res.status(200).json({ userFavourites });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -28,7 +30,9 @@ export const findUserFavourites = async (req: any, res: any, next: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -39,6 +43,8 @@ export const findOneUserFavourites = async (req: any, res: any, next: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };

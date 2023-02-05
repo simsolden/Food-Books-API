@@ -100,3 +100,10 @@ export interface Recipe {
   prepSteps: string[];
   isPrivate: boolean;
 }
+
+declare global {
+  interface Error {
+    status?: number;
+    statusCode?: number;
+  }
+}

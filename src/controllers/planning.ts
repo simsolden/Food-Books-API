@@ -19,7 +19,9 @@ export const addPlanningRecipe = async (req: any, res: any, next: any) => {
       throw new HttpException(404, "user's planning not found");
     }
   } catch (err) {
-    res.status(err.status || 500).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(err.status || 500).json({ message: err.message });
+    }
   }
 };
 
@@ -45,7 +47,9 @@ export const findUserPlanning = async (req: any, res: any, next: any) => {
       throw new HttpException(404, 'planning not found');
     }
   } catch (err) {
-    res.status(err.status || 500).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(err.status || 500).json({ message: err.message });
+    }
   }
 };
 
@@ -66,6 +70,8 @@ export const updatePlanning = async (req: any, res: any, next: any) => {
       throw new HttpException(404, 'planning not found');
     }
   } catch (err) {
-    res.status(err.status || 500).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(err.status || 500).json({ message: err.message });
+    }
   }
 };

@@ -21,6 +21,8 @@ export const verifyPicture = async (req: any, res: any, next: any) => {
 
     next();
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    }
   }
 };

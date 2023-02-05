@@ -47,7 +47,9 @@ export const createUser = async (req: any, res: any, next: any) => {
     // @ts-ignore
     res.status(200).json({ user: { ...userResponse._doc } });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -56,7 +58,9 @@ export const verifyAddress = async (req: any, res: any, next: any) => {
     const result = await User.updateOne({ _id: req.user._id }, { emailVerified: true });
     res.json({ updated: result.nModified });
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(err.statusCode || 500).json({ message: err.message });
+    }
   }
 };
 
@@ -77,7 +81,9 @@ export const login = async (req: any, res: any, next: any) => {
 
     res.json({ user, token });
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(err.statusCode || 500).json({ message: err.message });
+    }
   }
 };
 
@@ -85,7 +91,9 @@ export const autoLogin = async (req: any, res: any, next: any) => {
   try {
     res.json({ user: req.user });
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message });
+    if (err instanceof Error) {
+      res.status(err.statusCode || 500).json({ message: err.message });
+    }
   }
 };
 
@@ -160,7 +168,9 @@ export const findUserRecipes = async (req: any, res: any, next: any) => {
 
     res.status(200).json(response);
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -171,8 +181,9 @@ export const findUserRecipes = async (req: any, res: any, next: any) => {
 
 //     res.status(200).json({ result });
 //   } catch (err) {
-//     res.status(500).json({ error: true, message: err.message });
-//   }
+// // if (err instanceof Error) {
+//       // res.status(500).json({ error: true, message: err.message });
+//     //   }
 // };
 
 export const updateUser = async (req: any, res: any, next: any) => {
@@ -190,6 +201,8 @@ export const updateUser = async (req: any, res: any, next: any) => {
 
     throw new HttpException(401, 'unauthorized');
   } catch (err) {
-    res.status(err.status || 500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(err.status || 500).json({ error: true, message: err.message });
+    }
   }
 };

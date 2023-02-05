@@ -14,7 +14,9 @@ export const createCategory = async (req: any, res: any, next: any) => {
 
     res.status(200).json({ category });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -28,7 +30,9 @@ export const findCategories = async (req: any, res: any, next: any) => {
     }
     res.status(200).json({ result });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };
 
@@ -38,6 +42,8 @@ export const findOneCategory = async (req: any, res: any, next: any) => {
     const result = await Category.findOne({ _id: categoryId });
     res.status(200).json({ result });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
+    if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }
   }
 };

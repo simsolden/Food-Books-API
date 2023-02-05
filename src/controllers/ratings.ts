@@ -12,8 +12,9 @@ export const createUserRatings = async (req: any, res: any, next: any) => {
 
     res.status(200).json({ userRatings });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
-  }
+if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }  }
 };
 
 export const findUserRatings = async (req: any, res: any, next: any) => {
@@ -28,8 +29,9 @@ export const findUserRatings = async (req: any, res: any, next: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
-  }
+if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }  }
 };
 
 export const findOneUserRatings = async (req: any, res: any, next: any) => {
@@ -39,6 +41,7 @@ export const findOneUserRatings = async (req: any, res: any, next: any) => {
 
     res.status(200).json({ result });
   } catch (err) {
-    res.status(500).json({ error: true, message: err.message });
-  }
+if (err instanceof Error) {
+      res.status(500).json({ error: true, message: err.message });
+    }  }
 };

@@ -34,6 +34,8 @@ export const auth = async (req: any, res: any, next: any) => {
     req.user = user;
     next();
   } catch (error) {
-    res.status(error.status || 500).send({ error: error.message });
+    if (error instanceof Error) {
+      res.status(error.status || 500).send({ error: error.message });
+    }
   }
 };
